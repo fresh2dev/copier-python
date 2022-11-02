@@ -1,0 +1,39 @@
+<div align="center">
+  <h1>{{project_display_name}}</h1>
+  <hr>
+  <img src="https://img.fresh2.dev/file/imgcap/1791145565-3DaE3tKEuq.svg" alt="logo" width="160">
+  <p><em>{{project_description}}</em></p>
+  <hr>
+{%- if docs %}
+  <a href="{{docs_url}}/">Documentation</a> |
+{%- endif %}
+  <a href="{{repo_url}}/">Git Repo</a>
+  <hr>
+</div>
+
+*{{project_display_name}}* ...
+{%- if project_type == 'python' %}
+
+## Install
+
+```text
+pip install {{project_name}}
+```
+{%- endif %}
+
+## Use
+
+...
+
+---
+
+[![License](https://img.shields.io/github/license/{{repo_name}}?color=blue&style=for-the-badge)]({% if docs %}{{docs_url}}/license/{% else %}{{repo_url}}/blob/main/LICENSE{% endif %})
+[![GitHub tag (with filter)](https://img.shields.io/github/v/tag/{{repo_name}}?filter=!*%5Ba-z%5D*&style=for-the-badge&label=Release&color=blue)]({% if docs %}{{docs_url}}/changelog/{% else %}{{repo_url}}/blob/main/CHANGELOG.md{% endif %})
+[![GitHub last commit (branch)](https://img.shields.io/github/last-commit/{{repo_name}}/main?style=for-the-badge&label=updated&color=blue)]({% if docs %}{{docs_url}}/changelog/{% else %}{{repo_url}}/blob/main/CHANGELOG.md{% endif %})
+[![GitHub Repo stars](https://img.shields.io/github/stars/{{repo_name}}?color=blue&style=for-the-badge)](https://star-history.com/#{{repo_name}}&Date)
+<!-- [![Funding](https://img.shields.io/badge/funding-%24%24%24-blue?style=for-the-badge)]({{funding_url}}/) -->
+<!-- [![GitHub issues](https://img.shields.io/github/issues-raw/{{repo_name}}?color=blue&style=for-the-badge)]({{repo_url}}/issues/) -->
+<!-- [![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/{{repo_name}}?color=blue&style=for-the-badge)]({{repo_url}}/pulls/) -->
+{% if project_type == 'python' -%}
+<!-- [![PyPI - Downloads](https://img.shields.io/pypi/dm/{{project_name}}?color=blue&style=for-the-badge)](https://pypi.org/project/{{project_name}}/) -->
+{% endif -%}

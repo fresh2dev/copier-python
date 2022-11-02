@@ -1,0 +1,64 @@
+# Publishes a release when an unprefixed version tag (e.g. `0.1.0`) is pushed.
+# Every publish job needs `checks` (checks.yml), so nothing ships unless the
+# linters{% if project_type == 'python' %} and tests{% endif %} pass.
+name: Release
+
+on:
+  push:
+    tags: ["[0-9]+.[0-9]+.[0-9]+*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: {% raw %}release-${{ github.ref }}{% endraw %}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+{%- if project_type == 'python' %}
+
+  # Uses PyPI trusted publishing: register this repo, `release.yml` and the
+  # `pypi` environment as a trusted publisher on PyPI; no token is needed.
+  pypi:
+    name: Publish to PyPI
+    needs: checks
+    # The version comes from the tag; any other ref builds a local version PyPI rejects.
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/{{ project_name }}/
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@v5
+      - run: just publish
+{%- endif %}
+{%- if docs %}
+
+  # Deploys with wrangler; set the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
+  # secrets on the repo or the `docs` environment.
+  docs:
+    name: Publish docs
+    needs: checks
+    runs-on: ubuntu-latest
+    environment:
+      name: docs
+      url: {{ docs_url }}/
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@v5
+      - env:{% raw %}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}{% endraw %}
+        run: just docs-publish
+{%- endif %}

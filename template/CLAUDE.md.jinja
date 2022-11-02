@@ -1,0 +1,49 @@
+# CLAUDE.md
+
+## What this repo is
+
+**{{ project_display_name }}**: {{ project_description }}
+
+Generated from the [copier-python](https://github.com/fresh2dev/copier-python) template; the answers are in `.copier-answers.yml`.
+
+## Architecture
+
+<!--TODO-->
+{%- if project_type == 'python' %}
+
+- `src/{{ package_name }}/`: the package. The CLI entrypoint is `yapx.run` in `__main__.py`.
+- `tests/`: the pytest suite.
+{%- endif %}
+
+## Commands
+
+Tasks run through `just` (bare `just` lists them). Most tools are pinned in the justfiles and run via `uvx` / `uv run --with`; the CLIs they need on `PATH` (just, uv, prek{% if docs %}, wrangler{% endif %}) are pinned in `mise.toml`, so install them with `mise install` (after `mise trust`). dprint and its config (project or global) come from the machine. CI installs the same `mise.toml` tools and runs the same recipes.
+
+- `just format [paths]`: format with dprint, using its project or global config (no config: no formatting).
+- `just changelog`: prepend unreleased commits to `CHANGELOG.md` with git-cliff.
+{%- if project_type == 'python' %}
+- `just install`: sync `.venv` with `uv`.
+- `just test`, `just lint` (alias `check`), `just fix`, `just check-types`, `just check-docstrings`.
+- `just build`, `just publish-test`, `just publish`.
+{%- endif %}
+{%- if docs %}
+- `just docs-serve`, `just docs-build`, `just docs-publish`.
+{%- endif %}
+- `prek run --all-files`: run the git hooks (this project uses `prek`, not `pre-commit`).
+
+## Conventions
+
+- Commit messages follow Conventional Commits; `just changelog` groups them by type and skips `docs`/`style`/`build`/`ci`/`test`.
+- The commit hook runs `just format`{% if project_type == 'python' %} and `just check ./src`{% endif %}; don't rename the recipes it calls.
+{%- if project_type == 'python' %}
+- The version comes from unprefixed git tags (`0.1.0`) via `uv-dynamic-versioning`, and `__version__` reads it from the installed package metadata. A tagged commit builds exactly the tag; any other commit builds a dev version (`0.1.1.dev1+<hash>`).
+- Dev dependencies go in `pyproject.toml` dependency groups (`pytest` is in `tests`), not only in a justfile `--with`.
+{%- endif %}
+{%- if docs %}
+- `docs/index.md`, `docs/changelog.md` and `docs/license.md` include `README.md`, `CHANGELOG.md` and `LICENSE`, so edit those root files instead.
+- zensical builds the docs into `public{{ docs_route }}` (`site_dir` in `mkdocs.yml`), which `wrangler.toml` serves at <{{ docs_url }}>.
+{%- endif %}
+- Template-owned files (`justfile`, `*.just`, `.cliff.toml`, `.pre-commit-config.yaml`{% if docs %}, `mkdocs.yml`, `wrangler.toml`{% endif %}) are reset by `copier recopy --trust -r dev --skip 'src/**/*' --skip-answered`; review `git diff` afterwards.
+- CI: `.github/workflows/checks.yml` runs every hook except `format` (CI doesn't format){% if project_type == 'python' %}, `check-types`, `check-docstrings`, and `just test` on the minimum and latest Python{% endif %}.
+{%- if project_type == 'python' or docs %} Pushing a version tag runs `release.yml`, which publishes {% if project_type == 'python' %}to PyPI{% if docs %} and {% endif %}{% endif %}{% if docs %}the docs{% endif %} only after those checks pass.{% endif %}
+- `.beads/` is gitignored on purpose.

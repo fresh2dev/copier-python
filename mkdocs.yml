@@ -1,0 +1,93 @@
+site_name: "copier-python"
+site_description: "copier-python Docs"
+site_url: "https://f2dv.com/r/copier-python"
+repo_url: "https://github.com/fresh2dev/copier-python"
+repo_name: "fresh2dev/copier-python"
+edit_uri: "edit/main/docs"
+# edit_uri_template: "src/branch/main/docs/{path}"
+docs_dir: "docs"
+# zensical has no output-dir flag; nest under the route so `public/` maps onto wrangler.toml.
+site_dir: "public/r/copier-python"
+
+copyright: '<a href="https://fresh2.dev/"><img src="https://img.fresh2.dev/fresh2dev.svg" style="height: 3em; margin-right: 1em; filter: invert(100%);"></img></a> &copy; 2026 <a rel="license" target="_blank" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0; margin-left: 1em;" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>'
+extra:
+  generator: false
+  social: []
+    # - name: Fresh2.dev
+    #   icon: "material/home"
+    #   link: 'https://fresh2.dev/'
+
+## https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
+nav:
+  - Home: index.md
+  - Changelog: changelog.md
+  - License: license.md
+  - '<- f2dv.com':
+      - '/projects': 'https://f2dv.com/projects/'
+      # - '/fund': 'https://f2dv.com/fund/'
+watch:
+  - ./README.md
+  - ./CHANGELOG.md
+  - ./LICENSE
+
+theme:
+  name: material
+  language: en
+  palette:
+    # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#primary-color
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - navigation.instant
+    - navigation.indexes
+    - navigation.expand
+    - navigation.top
+    - navigation.tabs
+    - navigation.sticky
+    - announce.dismiss
+    - toc.follow
+    - search.suggest
+    - search.share
+    # - navigation.footer
+
+# extra_css:
+#   - css/extra.css
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.magiclink:
+      hide_protocol: true
+      repo_url_shortener: false
+      social_url_shortener: false
+  - pymdownx.saneheaders
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.snippets
+
+plugins:
+  - search
+  - autorefs

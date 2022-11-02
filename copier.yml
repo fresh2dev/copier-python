@@ -1,0 +1,138 @@
+---
+# Store each component answer file under separate subdirectory
+_subdirectory: template/
+_answers_file: '.copier-answers.yml'
+# Project-owned after the first render: `recopy` must not reset edits to these.
+_skip_if_exists:
+  - CHANGELOG.md
+  - CLAUDE.md
+# Validators: Jinja unescapes string literals, so regex backslashes are doubled.
+project_display_name:
+  type: str
+  help: 'Project Name:'
+  validator: >-
+    {% if project_display_name|regex_search('^[A-Za-z][\\w -]*\\Z') is none %}Start with a letter; use letters, digits, spaces, - or _.{% endif %}
+project_name:
+  type: str
+  default: "{{ project_display_name|lower|replace(' ', '-') }}"
+  when: false
+project_description:
+  type: str
+  help: 'Project Description:'
+  validator: >-
+    {% if project_description|regex_search('^[^"\\\\\n]{1,512}\\Z') is none %}Use a single line (max 512) without quotes or backslashes.{% endif %}
+project_type:
+  type: str
+  help: 'Project Type:'
+  choices:
+    - python
+    - other
+  default: python
+docs:
+  type: bool
+  help: 'Include a docs site (zensical + wrangler)?'
+  default: true
+repo_host:
+  type: str
+  help: 'Repo Host:'
+  default: github.com
+  validator: >-
+    {% if repo_host|regex_search('^[\\w.-]+\\.[A-Za-z]+\\Z') is none %}Enter a hostname, e.g. github.com.{% endif %}
+repo_owner:
+  type: str
+  help: 'Repo Owner:'
+  default: fresh2dev
+  validator: >-
+    {% if repo_owner|regex_search('^[\\w.-]+\\Z') is none %}Use letters, digits, ., - or _.{% endif %}
+repo_name:
+  type: str
+  help: 'Repo Name:'
+  default: '{{repo_owner}}/{{project_name}}'
+  when: false
+repo_url:
+  type: str
+  default: https://{{repo_host}}/{{repo_name}}
+  when: false
+repo_ssh_url:
+  type: str
+  default: git@{{repo_host}}:{{repo_name}}.git
+  validator: >-
+    {% if repo_ssh_url|regex_search('^(git@|ssh://)[\\w.@:/~-]+\\.git\\Z') is none %}Enter an SSH URL, e.g. git@github.com:owner/repo.git.{% endif %}
+home_domain:
+  type: str
+  help: 'Home Domain:'
+  default: f2dv.com
+  when: '{{ docs }}'
+  validator: >-
+    {% if home_domain|regex_search('^[\\w.-]+\\.[A-Za-z]+\\Z') is none %}Enter a hostname, e.g. github.com.{% endif %}
+docs_route:
+  type: str
+  help: 'Docs Route:'
+  default: /r/{{project_name}}
+  when: '{{ docs }}'
+  validator: >-
+    {% if docs_route|regex_search('^(/[\\w.~-]+)*\\Z') is none %}Leave empty or use /path with no trailing slash.{% endif %}
+home_url:
+  type: str
+  default: https://{{ home_domain }}
+  when: false
+docs_url:
+  type: str
+  default: '{{ home_url }}{{ docs_route }}'
+  when: false
+funding_url:
+  type: str
+  help: 'Funding URL:'
+  default: '{{home_url}}/fund'
+  when: false
+license_type:
+  type: str
+  choices:
+    MIT:
+    GPLv3:
+    CC BY-SA 4.0:
+    Other:
+python_version:
+  type: str
+  help: 'Minimum Python version:'
+  default: '3.11'
+  when: "{{ project_type == 'python' }}"
+  validator: >-
+    {% if python_version|regex_search('^3\\.(1[1-9]|[2-9]\\d)\\Z') is none %}Use 3.11 or newer, e.g. 3.12.{% endif %}
+package_name:
+  type: str
+  help: 'Package name:'
+  default: "{{ project_display_name|lower|replace(' ', '_')|replace('-', '_') }}"
+  when: false
+author_name:
+  type: str
+  help: 'Author name:'
+  default: Donald Mellenbruch
+  validator: >-
+    {% if author_name|regex_search('^[^"\\\\\n]+\\Z') is none %}Use a single line without quotes or backslashes.{% endif %}
+author_email:
+  type: str
+  help: 'Author email:'
+  default: hello@f2dv.com
+  validator: >-
+    {% if author_email|regex_search('^\\S+@\\S+\\.\\S+\\Z') is none %}Enter an email address.{% endif %}
+_tasks:
+  # Init a repo after the initial copy operation only.
+  - command: >
+      git init -q
+    # when: "{{ _copier_operation in ['copy', 'recopy'] }}"
+  - command: >
+      git remote add origin '{{repo_ssh_url}}' 2>/dev/null || git remote set-url origin '{{repo_ssh_url}}'
+    # when: "{{ _copier_operation in ['copy', 'recopy'] }}"
+  - command: >
+      git remote add github 'git@github.com:{{repo_name}}.git' 2>/dev/null || git remote set-url github 'git@github.com:{{repo_name}}.git'
+    # when: "{{ _copier_operation in ['copy', 'recopy'] }}"
+  - command: >
+      git remote remove public 2>/dev/null || true
+    # when: "{{ _copier_operation in ['copy', 'recopy'] }}"
+  - command: >
+      prek install --allow-missing-config --force
+    # when: "{{ _copier_operation in ['copy', 'recopy'] }}"
+  - command: >
+      if [ ! -d ".beads/" ] && command -v br >/dev/null; then br init; fi
+    # when: "{{ _copier_operation in ['copy', 'recopy'] }}"

@@ -1,0 +1,62 @@
+# Git
+!.gitkeep
+
+# Junk files
+*.tmp
+scratch.*
+
+# OS generated files
+.DS_store
+
+# IDEs and editors
+.vscode/settings.json
+
+# Build artifacts
+/dist/
+/build/
+/target/
+/public/
+/site/
+
+# Dependencies
+node_modules/
+/.devbox/
+/.helmwave/
+.wrangler/
+.cloudflare/
+
+# Secret artifacts
+/secrets/
+
+# Tool caches
+.cache
+.rumdl_cache
+
+# Agent files
+TODO.md
+PLAN.md
+graphify-out/
+# Dolt database files (added by bd init)
+.beads/
+.dolt/
+*.db
+{%- if project_type == 'python' %}
+
+# Python
+/.venv/
+/requirements.txt
+*.pyc
+.coverage
+.ipynb_checkpoints/
+.tox/
+*.egg-info/
+.mypy_cache/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+{% endif -%}
+# Dolt database files (added by bd init)
+.beads/
+.dolt/
+*.db

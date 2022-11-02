@@ -1,0 +1,101 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Tools
+# ─────────────────────────────────────────────────────────────────────────────
+
+ruff := '''
+    uvx --from 'ruff==0.16.*' \
+    -- ruff'''
+
+docsig := '''
+    uvx --from 'docsig==0.*' \
+    -- docsig'''
+
+ty := '''
+    uvx --from 'ty==0.0.*' \
+    -- ty'''
+
+pylint := '''
+    uv run \
+    --with 'pylint==4.*' \
+    -- pylint'''
+
+pytest := '''
+    uv run \
+    --with 'pytest==9.*' \
+    --with "pytest-env==1.*" \
+    --with "pytest-xdist==3.*" \
+    --with "pytest-cov==5.*" \
+    --with "pytest-html==4.*" \
+    --with "pytest-sugar==1.*" \
+    --with "pytest-markdown-docs==0.9.*" \
+    --with "pytest-custom-exit-code==0.3.*" \
+    -- pytest'''
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build & Package
+# ─────────────────────────────────────────────────────────────────────────────
+
+[positional-arguments]
+build *args:
+    uv build --no-sources "$@"
+
+[positional-arguments]
+publish *args: build
+    uv publish "$@"
+
+[positional-arguments]
+publish-test *args: build
+    uv publish --index testpypi "$@"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+
+alias sync := install
+
+[positional-arguments]
+install *args:
+    uv sync --all-packages --all-extras --all-groups --upgrade "$@"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Quality
+# ─────────────────────────────────────────────────────────────────────────────
+
+# `format` is the dprint recipe in the core justfile.
+[positional-arguments]
+fix *args: && format
+    {{ ruff }} check --force-exclude --fix-only "$@"
+
+[positional-arguments]
+lint *paths:
+    {{ ruff }} check --force-exclude "$@"
+    {{ pylint }} --disable=R,C,W0511 "$@"
+
+alias check := lint
+
+[positional-arguments]
+check-types *args:
+    {{ ty }} check "$@"
+
+# TODO: check-ci
+
+alias typecheck := check-types
+
+[positional-arguments]
+check-docstrings *args:
+    {{ docsig }} \
+    --check-class \
+    --check-dunders \
+    --check-overridden \
+    --check-protected \
+    --disable SIG101,SIG102 \
+    "$@"
+
+[positional-arguments]
+test *args:
+    {{ pytest }} "$@"
+
+clean:
+    rm -rf dist/ .pytest_cache/ .ruff_cache/ *.egg-info/
+    -find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null
+    -find . -type f -name "*.pyc" -delete 2>/dev/null

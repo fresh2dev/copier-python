@@ -1,0 +1,15 @@
+---
+# Changes here will be overwritten by Copier
+_src_path: .
+author_email: hello@f2dv.com
+author_name: Donald Mellenbruch
+docs: true
+docs_route: /r/copier-python
+home_domain: f2dv.com
+license_type: MIT
+project_description: A Copier template for [Python] projects.
+project_display_name: copier-python
+project_type: other
+repo_host: github.com
+repo_owner: fresh2dev
+repo_ssh_url: git@github.com:fresh2dev/copier-python.git

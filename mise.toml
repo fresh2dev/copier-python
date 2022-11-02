@@ -1,0 +1,11 @@
+# CLI tools this project needs on PATH; `mise install` installs them, and CI
+# installs them with jdx/mise-action. Tools the justfiles run through `uvx` or
+# `uv run --with` are pinned there instead.
+#
+# `lazy` tools install on first use, so CI's bare `mise install` skips them.
+# A lazy tool whose bin name mise doesn't know needs `lazy_bins`.
+[tools]
+just = "1.59.0"
+uv = "0.13.6"
+prek = "0.5.7"
+wrangler = { version = "4.154.0", allow_builds = ["esbuild", "sharp", "workerd"] }
