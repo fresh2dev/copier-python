@@ -1,0 +1,92 @@
+[project]
+name = "{{project_name}}"
+description = "{{project_description}}"
+readme = "README.pypi.md"
+requires-python = ">={{python_version}}.0"
+{%- if license_type != 'Other' %}
+license = "{{ {'MIT': 'MIT', 'GPLv3': 'GPL-3.0-only', 'CC BY-SA 4.0': 'CC-BY-SA-4.0'}[license_type] }}"
+license-files = ["LICENSE"]
+{%- endif %}
+authors = [
+  { name = "{{author_name}}", email = "{{author_email}}" },
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+]
+dependencies = [
+  "yapx[extras]==0.5.*",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "{{docs_url}}"
+Repository = "{{repo_url}}"
+# Funding = "{{funding_url}}"
+
+[project.scripts]
+{{project_name}} = "{{package_name}}.__main__:main"
+
+[project.optional-dependencies]
+# extras = []
+
+[dependency-groups]
+dev = [
+  { include-group = "tests" },
+]
+tests = [
+  "mockish>=0.1.1,<2",
+  "packaging==23.*",
+  "pytest==9.*",
+]
+
+[build-system]
+requires = ["hatchling>=1.8.0", "uv-dynamic-versioning>=0.8.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
+only-include = ["src"]
+
+[tool.pytest]
+testpaths = ["tests"]
+
+[tool.ruff]
+unsafe-fixes = true
+output-format = "concise"
+
+[tool.ruff.format]
+# Enable reformatting of code snippets in docstrings.
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ty.terminal]
+error-on-warning = true
+output-format = "concise"
+
+[tool.uv]
+default-groups = ["dev"]
+# Rebuild the editable install when a commit or tag changes the version.
+cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
+
+# Target of `just publish-test` (uv publish --index testpypi).
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
+
+[tool.uv.sources]
+# mockish = { path = "../mockish", editable = true }
+# yapx = { path = "../yapx", editable = true }
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+pattern = "default-unprefixed"
+bump = true

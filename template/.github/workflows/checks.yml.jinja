@@ -1,0 +1,64 @@
+# Linters{% if project_type == 'python' %}, plus the test suite on the oldest and newest Python{% endif %}.
+# Runs on pull requests and pushes to main, and gates every publish job in
+# release.yml (through `workflow_call`), so nothing ships until it passes.
+# Tools come from mise.toml and the steps run the git hooks and justfile recipes.
+# Formatting is left to the commit hook, so CI skips it.
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+{%- if project_type == 'python' %}
+    env:
+      UV_PYTHON: "{{ python_version }}"
+{%- endif %}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@v5
+      # Every hook except `format` (dprint): the builtin file checks{% if project_type == 'python' %} and `just check ./src`{% endif %}.
+      - name: Run hooks
+        env:
+          SKIP: format
+        run: prek run --all-files --show-diff-on-failure
+{%- if project_type == 'python' %}
+      - name: Check types
+        run: just check-types
+      - name: Check docstrings
+        run: just check-docstrings src
+
+  test:
+    name: Test (Python {% raw %}${{ matrix.python-version }}{% endraw %})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The minimum supported version (requires-python) and the latest stable release.
+        python-version: ["{{ python_version }}", "3.x"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: python
+        uses: actions/setup-python@v7
+        with:
+          python-version: {% raw %}${{ matrix.python-version }}{% endraw %}
+          check-latest: true
+      - uses: jdx/mise-action@v5
+      - name: Run pytest
+        env:
+          UV_PYTHON: {% raw %}${{ steps.python.outputs.python-path }}{% endraw %}
+        run: just test
+{%- endif %}

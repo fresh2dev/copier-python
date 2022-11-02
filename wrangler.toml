@@ -1,0 +1,14 @@
+name = "copier-python"
+compatibility_date = "2025-06-28"
+workers_dev = true
+preview_urls = true
+
+routes = [
+  # https://developers.cloudflare.com/workers/configuration/routing/routes/
+  # https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
+  { pattern = "f2dv.com/r/copier-python*", zone_name = "f2dv.com" },
+]
+
+[assets]
+directory = "public"
+not_found_handling = "404-page"

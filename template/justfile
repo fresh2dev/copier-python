@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Tools
+# ─────────────────────────────────────────────────────────────────────────────
+
+git_cliff := '''
+    uvx --from 'git-cliff==2.*' \
+    -- git-cliff'''
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Modules (present only when enabled for this project)
+# ─────────────────────────────────────────────────────────────────────────────
+
+import? 'python.just'
+import? 'docs.just'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Default
+# ─────────────────────────────────────────────────────────────────────────────
+
+[positional-arguments]
+default:
+    @ just --choose
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Core
+# ─────────────────────────────────────────────────────────────────────────────
+
+[positional-arguments]
+changelog:
+    {{ git_cliff }} --unreleased --prepend CHANGELOG.md
+
+# Uses the dprint config found from here up, else the global one (exit 11: none, so nothing to format).
+[positional-arguments]
+format *paths:
+    dprint fmt --allow-no-files "$@" || [ $? -eq 11 ]

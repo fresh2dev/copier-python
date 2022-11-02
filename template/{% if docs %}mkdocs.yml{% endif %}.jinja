@@ -1,0 +1,123 @@
+site_name: "{{project_display_name}}"
+site_description: "{{project_display_name}} Docs"
+site_url: "{{docs_url}}"
+repo_url: "{{repo_url}}"
+repo_name: "{{repo_name}}"
+edit_uri: "edit/main/docs"
+# edit_uri_template: "src/branch/main/docs/{path}"
+docs_dir: "docs"
+# zensical has no output-dir flag; nest under the route so `public/` maps onto wrangler.toml.
+site_dir: "public{{docs_route}}"
+
+copyright: '<a href="https://fresh2.dev/"><img src="https://img.fresh2.dev/fresh2dev.svg" style="height: 3em; margin-right: 1em; filter: invert(100%);"></img></a> &copy; 2026 <a rel="license" target="_blank" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0; margin-left: 1em;" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>'
+extra:
+  generator: false
+  social: []
+    # - name: Fresh2.dev
+    #   icon: "material/home"
+    #   link: 'https://fresh2.dev/'
+
+## https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
+nav:
+  - Home: index.md
+  - Articles:
+      - 'page/related.md'
+{% if project_type == 'python' %}  - Reference: reference/
+{% endif %}  - Changelog: changelog.md
+  - License: license.md
+  - '<- {{ home_domain }}':
+      - '/projects': '{{ home_url }}/projects/'
+      # - '/fund': '{{ funding_url }}/'
+watch:
+  - ./README.md
+  - ./CHANGELOG.md
+  - ./LICENSE
+{% if project_type == 'python' %}  - ./src
+{% endif %}
+theme:
+  name: material
+  language: en
+  palette:
+    # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#primary-color
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - navigation.instant
+    - navigation.indexes
+    - navigation.expand
+    - navigation.top
+    - navigation.tabs
+    - navigation.sticky
+    - announce.dismiss
+    - toc.follow
+    - search.suggest
+    - search.share
+    # - navigation.footer
+
+# extra_css:
+#   - css/extra.css
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.magiclink:
+      hide_protocol: true
+      repo_url_shortener: false
+      social_url_shortener: false
+  - pymdownx.saneheaders
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.snippets
+
+plugins:
+  - search
+  - autorefs
+{% if project_type == 'python' %}  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: ["src"]
+          options:
+            docstring_section_style: spacy
+            docstring_style: google
+            members_order: 'alphabetical'  # 'source'
+            merge_init_into_class: true
+            separate_signature: true
+            show_bases: false
+            show_category_heading: true
+            show_if_no_docstring: false
+            show_object_full_path: false
+            show_root_full_path: false
+            show_root_heading: false
+            show_root_members_full_path: false
+            show_root_toc_entry: false
+            show_signature: true
+            show_signature_annotations: true
+            show_source: false
+            show_submodules: false
+            signature_crossrefs: true
+            unwrap_annotated: true
+{% endif -%}
